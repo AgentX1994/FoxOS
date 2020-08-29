@@ -132,7 +132,7 @@ install-libs: $(TARGET_LIBS)
 
 
 clean:
-	rm -rf myos.iso isodir sysroot $(KERNEL_ARCHDIR)/crti.o $(KERNEL_ARCH_OBJS) $(KERNEL_SRC_OBJS) $(KERNEL_ARCH_OBJS:.o=.d) $(KERNEL_SRC_OBJS:.o=.d) $(KERNEL_ARCHDIR)/crtn.o
+	rm -rf myos.iso myos.kernel isodir sysroot $(KERNEL_ARCHDIR)/crti.o $(KERNEL_ARCH_OBJS) $(KERNEL_SRC_OBJS) $(KERNEL_ARCH_OBJS:.o=.d) $(KERNEL_SRC_OBJS:.o=.d) $(KERNEL_ARCHDIR)/crtn.o $(TARGET_LIBS) $(LIBC_OBJS) $(LIBC_OBJS:.o=.d) $(LIBK_OBJS) $(LIBK_OBJS:.libk.o=.libk.d)
 
 myos.iso: install-kernel 
 	mkdir -p isodir/boot/grub
