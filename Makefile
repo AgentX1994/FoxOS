@@ -30,7 +30,7 @@ ifneq ($(substr -elf,, $(HOST)), $(HOST))
 endif
 
 # kernel setup
-KERNEL_CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
+KERNEL_CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -fstack-protector-all
 KERNEL_CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Ikernel/include
 KERNEL_LDFLAGS:=$(LDFLAGS)
 KERNEL_LIBS:=$(LIBS) -nostdlib -lk -lgcc
@@ -56,10 +56,10 @@ KERNEL_LINK_LIST:=$(KERNEL_LDFLAGS) $(KERNEL_OBJS) $(KERNEL_LIBS)
 LIBC_ARCHDIR=libc/arch/$(HOSTARCH)
 include $(LIBC_ARCHDIR)/make.config
 
-LIBC_CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
+LIBC_CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -fstack-protector-all
 LIBC_CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Ilibc/include
-LIBK_CFLAGS:=$(LIBC_CFLAGS)
-LIBK_CPPFLAGS:=$(LIBC_CPPFLAGS) -D__is_libk
+LIBK_CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -fstack-protector-all
+LIBK_CPPFLAGS:=$(CPPFLAGS) -D__is_libk -Ilibc/include
 
 HOSTEDOBJS=$(ARCH_HOSTEDOBJS)
 FREEOBJS=$(ARCH_FREEOBJS)  \
@@ -72,6 +72,7 @@ libc/string/memcpy.o \
 libc/string/memmove.o \
 libc/string/memset.o \
 libc/string/strlen.o \
+libc/ssp/ssp.o \
 
 LIBC_OBJS=$(FREEOBJS) $(HOSTEDOBJS)
 
