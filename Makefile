@@ -84,7 +84,7 @@ TARGET_LIBS=libk.a
 .SUFFIXES: .o .c .S
 
 
-all: install-headers $(TARGET_LIBS) install-libs myos.iso
+all: install-headers $(TARGET_LIBS) install-libs foxos.iso
 
 $(KERNEL_SRC_OBJS): %.o: %.c Makefile
 	$(CC) -MD -MP -c $< -o $@ -std=gnu17 $(KERNEL_CFLAGS) $(KERNEL_CPPFLAGS)
@@ -95,9 +95,9 @@ $(KERNEL_ARCH_C_OBJS): %.o: %.c Makefile
 $(KERNEL_ARCH_ASM_OBJS): %.o: %.s Makefile
 	$(CC) -MD -MP -c $< -o $@  $(KERNEL_CFLAGS) $(KERNEL_CPPFLAGS)
 
-myos.kernel: $(KERNEL_OBJS) $(KERNEL_ARCHDIR)/linker.ld Makefile $(TARGET_LIBS)
+foxos.kernel: $(KERNEL_OBJS) $(KERNEL_ARCHDIR)/linker.ld Makefile $(TARGET_LIBS)
 	$(CC) -T $(KERNEL_ARCHDIR)/linker.ld -o $@ $(KERNEL_CFLAGS) $(KERNEL_LINK_LIST)
-	grub-file --is-x86-multiboot myos.kernel
+	grub-file --is-x86-multiboot foxos.kernel
 
 $(LIBC_OBJS): %.o: %.c Makefile
 	$(CC) -MD -MP -c $< -o $@ -std=gnu17 $(LIBC_CFLAGS) $(LIBC_CPPFLAGS)
@@ -123,9 +123,9 @@ install-libc-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps libc/include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: myos.kernel
+install-kernel: foxos.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp myos.kernel $(DESTDIR)$(BOOTDIR)
+	cp foxos.kernel $(DESTDIR)$(BOOTDIR)
 
 install-libs: $(TARGET_LIBS)
 	mkdir -p $(DESTDIR)$(LIBDIR)
@@ -133,13 +133,13 @@ install-libs: $(TARGET_LIBS)
 
 
 clean:
-	rm -rf myos.iso myos.kernel isodir sysroot $(KERNEL_ARCHDIR)/crti.o $(KERNEL_ARCH_OBJS) $(KERNEL_SRC_OBJS) $(KERNEL_ARCH_OBJS:.o=.d) $(KERNEL_SRC_OBJS:.o=.d) $(KERNEL_ARCHDIR)/crtn.o $(TARGET_LIBS) $(LIBC_OBJS) $(LIBC_OBJS:.o=.d) $(LIBK_OBJS) $(LIBK_OBJS:.libk.o=.libk.d)
+	rm -rf foxos.iso foxos.kernel isodir sysroot $(KERNEL_ARCHDIR)/crti.o $(KERNEL_ARCH_OBJS) $(KERNEL_SRC_OBJS) $(KERNEL_ARCH_OBJS:.o=.d) $(KERNEL_SRC_OBJS:.o=.d) $(KERNEL_ARCHDIR)/crtn.o $(TARGET_LIBS) $(LIBC_OBJS) $(LIBC_OBJS:.o=.d) $(LIBK_OBJS) $(LIBK_OBJS:.libk.o=.libk.d)
 
-myos.iso: install-kernel 
+foxos.iso: install-kernel 
 	mkdir -p isodir/boot/grub
-	cp sysroot/boot/myos.kernel isodir/boot/myos.kernel
+	cp sysroot/boot/foxos.kernel isodir/boot/foxos.kernel
 	cp grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o myos.iso isodir
+	grub-mkrescue -o foxos.iso isodir
 	rm -rf isodir
 
 todolist:
