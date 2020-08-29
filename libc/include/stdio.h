@@ -4,12 +4,12 @@
 #include <sys/cdefs.h>
 
 #define EOF (-1)
+#include <sys/printf.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int printf(const char* __restrict, ...);
 int putchar(int);
 int puts(const char*);
 

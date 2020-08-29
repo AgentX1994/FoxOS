@@ -30,7 +30,7 @@ ifneq ($(substr -elf,, $(HOST)), $(HOST))
 endif
 
 # kernel setup
-KERNEL_CFLAGS:=$(CFLAGS) -ffreestanding -O2 -Wall -Wextra
+KERNEL_CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
 KERNEL_CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Ikernel/include
 KERNEL_LDFLAGS:=$(LDFLAGS)
 KERNEL_LIBS:=$(LIBS) -nostdlib -lk -lgcc
@@ -83,7 +83,7 @@ TARGET_LIBS=libk.a
 .SUFFIXES: .o .c .S
 
 
-all: $(TARGET_LIBS) install-libs myos.iso
+all: install-headers $(TARGET_LIBS) install-libs myos.iso
 
 $(KERNEL_SRC_OBJS): %.o: %.c Makefile
 	$(CC) -MD -MP -c $< -o $@ -std=gnu17 $(KERNEL_CFLAGS) $(KERNEL_CPPFLAGS)
@@ -94,7 +94,7 @@ $(KERNEL_ARCH_C_OBJS): %.o: %.c Makefile
 $(KERNEL_ARCH_ASM_OBJS): %.o: %.s Makefile
 	$(CC) -MD -MP -c $< -o $@  $(KERNEL_CFLAGS) $(KERNEL_CPPFLAGS)
 
-myos.kernel: $(KERNEL_OBJS) $(KERNEL_ARCHDIR)/linker.ld Makefile
+myos.kernel: $(KERNEL_OBJS) $(KERNEL_ARCHDIR)/linker.ld Makefile $(TARGET_LIBS)
 	$(CC) -T $(KERNEL_ARCHDIR)/linker.ld -o $@ $(KERNEL_CFLAGS) $(KERNEL_LINK_LIST)
 	grub-file --is-x86-multiboot myos.kernel
 

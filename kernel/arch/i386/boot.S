@@ -46,6 +46,12 @@ _start:
     mov $stack_top, %esp
 
     /*
+    Push multiboot address and magic onto stack
+    */
+    push %eax
+    push %ebx
+
+    /*
     Initialize critical processor state before high-level kernel is entered.
     Best practice is to minimize the early environment. The processor is not
     yet fully initialized: Features such as floating point instructions and instruction

@@ -41,7 +41,13 @@ _start:
 
 
     mov $stack_top, %esp
-# 60 "kernel/arch/i386/boot.S"
+
+
+
+
+    push %eax
+    push %ebx
+# 66 "kernel/arch/i386/boot.S"
     call _init
 
 
