@@ -13,6 +13,7 @@ $(info CC is $(CC))
 $(info CXX is $(CXX))
 $(info AS is $(AS))
 $(info AR is $(AR))
+$(info DESTDIR is $(DESTDIR))
 
 CFLAGS?=-O2 -g
 CPPFLAGS?=
@@ -80,7 +81,7 @@ LIBK_OBJS=$(FREEOBJS:.o=.libk.o)
 
 TARGET_LIBS=libk.a
 
-.PHONY: all clean install-headers install-kernel-headers install-libc-headers install-kernel install-libs test todolist
+.PHONY: all clean install-headers install-kernel-headers install-libc-headers install-kernel install-libs test todolist run
 .SUFFIXES: .o .c .S
 
 
@@ -144,6 +145,9 @@ foxos.iso: install-kernel
 
 todolist:
 	-@rg -T make "TODO|FIXME"
+
+run:
+	@scripts/run_qemu.sh foxos.iso
 
 -include $(KERNEL_OBJS:.o=.d)
 -include $(LIBC_OBJS:.o=.d)
