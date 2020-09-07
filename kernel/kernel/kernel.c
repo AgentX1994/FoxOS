@@ -27,6 +27,7 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic)
         // magic isn't correct
         terminal_writestring("WARNING: Not loaded by multiboot compatible boot loader!\n");
     }
+    printf("Kernel Loaded! mbd = 0x%x\n", mbd);
     if (mbd->flags & MULTIBOOT_INFO_MEMORY) {
         printf("mem_lower = %uB\n", mbd->mem_lower * 1024);
         printf("mem_upper = %uB\n", mbd->mem_upper * 1024);

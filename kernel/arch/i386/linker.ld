@@ -1,43 +1,61 @@
-/* Set the start point, where the bootloader will hand over control */
-ENTRY(_start)
 
 /* Tell where the various sections of the object files will be put 
  * in the final kernel image
  */
+PHYS = 0x00100000;
+VIRT = 0xC0000000;
+
+/* Set the start point, where the bootloader will hand over control */
+ENTRY(_start)
 SECTIONS
 {
-    /* Begin putting sections at 1 MiB, a conventional place for kernels
-     * to be loaded by the bootloader. */
-    . = 1M;
+    . = PHYS;
+    /* The kernel will live at 3GB + 1MB in the virtual address space.
+     * which will be mapped to 1 MB in the physical address space
+     * page align the sections
+     */
 
     /* First put the multiboot header, as it is required to be put very
      * early in the image or the bootloader won't recognize the file 
      * format. Next we'll put the .text section.
      */
-    .text BLOCK(4K) : ALIGN(4K)
+    /*
+    .multiboot : AT (ADDR (.multiboot) ) {
+        *(.multiboot.data)
+        *(.multiboot.text)
+    }
+    */
+
+    . += VIRT;
+    _kernel_start = .;
+
+    .text ALIGN(4K) : AT (ADDR (.text) - VIRT)
     {
-        *(.multiboot)
+        *(.multiboot.data)
+        *(.multiboot.text)
         *(.text)
     }
 
     /* Read-only data. */
-    .rodata BLOCK(4K) : ALIGN(4K)
+    .rodata ALIGN(4K) : AT (ADDR (.rodata) - VIRT)
     {
         *(.rodata)
     }
 
     /* Read-write data (initialized) */
-    .data BLOCK(4K) : ALIGN(4K)
+    .data ALIGN(4K) : AT (ADDR (.data) - VIRT)
     {
         *(.data)
     }
 
     /* Read-write data (uninitialized and stack */
-    .bss BLOCK(4K) : ALIGN(4K)
+    .bss ALIGN(4K) : AT (ADDR (.bss) - VIRT)
     {
         *(COMMON)
         *(.bss)
+        *(.bootstrap_stack)
     }
+    _kernel_end = .;
 
     /* The compiler may produce other sections, by default it
      * will put them in a segment with the same name. Simply

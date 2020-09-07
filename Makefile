@@ -50,7 +50,7 @@ KERNEL_LIBS:=$(KERNEL_LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_SRC_FILES:=$(shell find kernel -type f -name "*.c" -a -! -path "*arch*")
 $(info KERNEL_SRC_FILES = $(KERNEL_SRC_FILES))
 KERNEL_SRC_OBJS:=$(patsubst %.c,%.o,$(KERNEL_SRC_FILES))
-KERNEL_OBJS=$(KERNEL_ARCHDIR)/crti.o $(CRTBEGIN_OBJ) $(KERNEL_ARCH_OBJS) $(KERNEL_SRC_OBJS)  $(CRTEND_OBJ) $(KERNEL_ARCHDIR)/crtn.o
+KERNEL_OBJS=$(KERNEL_ARCH_MULTIBOOT_OBJS) $(KERNEL_ARCHDIR)/crti.o $(CRTBEGIN_OBJ) $(KERNEL_ARCH_OBJS) $(KERNEL_SRC_OBJS)  $(CRTEND_OBJ) $(KERNEL_ARCHDIR)/crtn.o
 KERNEL_LINK_LIST:=$(KERNEL_LDFLAGS) $(KERNEL_OBJS) $(KERNEL_LIBS)
 
 # libc / libk setup
@@ -94,6 +94,9 @@ $(KERNEL_ARCH_C_OBJS): %.o: %.c Makefile
 	$(CC) -MD -MP -c $< -o $@ -std=gnu17 $(KERNEL_CFLAGS) $(KERNEL_CPPFLAGS)
 
 $(KERNEL_ARCH_ASM_OBJS): %.o: %.s Makefile
+	$(CC) -MD -MP -c $< -o $@  $(KERNEL_CFLAGS) $(KERNEL_CPPFLAGS)
+
+$(KERNEL_ARCH_MULTIBOOT_OBJS): %.o: %.s Makefile
 	$(CC) -MD -MP -c $< -o $@  $(KERNEL_CFLAGS) $(KERNEL_CPPFLAGS)
 
 foxos.kernel: $(KERNEL_OBJS) $(KERNEL_ARCHDIR)/linker.ld Makefile $(TARGET_LIBS)
