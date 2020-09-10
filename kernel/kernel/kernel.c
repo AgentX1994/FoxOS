@@ -5,20 +5,13 @@
 
 #include <kernel/multiboot.h>
 #include <kernel/tty.h>
+#include <kernel/phys_mem.h>
 
 __attribute__((constructor)) void initialize(void)
 {
     /* initialize terminal interface */
     terminal_initialize();
-    terminal_writestring("Terminal initialized...\n\n\n\n");
 }
-
-typedef struct {
-    uint32_t size;
-    uint64_t addr;
-    uint64_t len;
-    uint32_t type;
-} __attribute__((packed)) mem_map_entry;
 
 void kernel_main(multiboot_info_t* mbd, unsigned int magic)
 {
@@ -34,18 +27,13 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic)
     }
 
     if (mbd->flags & MULTIBOOT_INFO_MEM_MAP) {
-        printf("mmap_length = %uB\n", mbd->mmap_length);
-        printf("mmap_addr   = 0x%x\n", mbd->mmap_addr);
-
-        // traverse and print the mmap
-        mem_map_entry* mmap;
-        for (mmap = (mem_map_entry*)mbd->mmap_addr;
-             mmap < (mem_map_entry*)(mbd->mmap_addr + mbd->mmap_length);
-             mmap = ((uint32_t)mmap + mmap->size + sizeof(mmap->size))) {
-            printf("base_addr = 0x%llx, length = 0x%llx, type=%u\n",
-                mmap->addr,
-                mmap->len,
-                mmap->type);
-        }
+        setup_memory_map(mbd);
     }
+
+    int64_t page = allocate_pages(1);
+    int64_t pages = allocate_pages(2);
+    int64_t pages2 = allocate_pages(3);
+    free_pages(pages2, 3);
+    free_pages(pages, 2);
+    free_pages(page, 1);
 }

@@ -9,6 +9,7 @@
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
+// static uint16_t* const VGA_MEMORY = (uint16_t*)0xB8000;//0xC03FF000;
 static uint16_t* const VGA_MEMORY = (uint16_t*)0xC03FF000;
 
 static size_t terminal_row;
@@ -39,6 +40,13 @@ void scroll_terminal()
         uint16_t* dest = &terminal_buffer[dest_index];
         uint16_t* src = &terminal_buffer[src_index];
         memcpy(dest, src, VGA_WIDTH * sizeof(uint16_t));
+    }
+    size_t last_row_index = (VGA_HEIGHT-1) * VGA_WIDTH;
+    // reset last row to ' '
+    for (size_t x = 0; x < VGA_WIDTH; x++)
+    {
+        const size_t index = last_row_index + x;
+        terminal_buffer[index] = vga_entry(' ', terminal_color);
     }
 }
 

@@ -10,6 +10,8 @@ stack_bottom:
 .skip 16384 # 16 KiB
 stack_top:
 
+#define VIRT_OFFSET 0xC0000000
+
 /*
  * Preallocate pages used for paging. Don't hard-code addresses and assume they
  * are available, as the bootloader might have loaded its multiboot structures or
@@ -17,6 +19,10 @@ stack_top:
  */
 .section .bss, "aw", @nobits
 	.align 4096
+# Create a starting heap, only really used for relocating the
+# Multiboot info structure from GRUB
+init_heap:
+    .skip 4096
 boot_page_directory:
 	.skip 4096
 boot_page_table1:
@@ -30,6 +36,27 @@ once the kernel has been loaded. No point in returning.
 .global _start
 .type _start, @function
 _start:
+    /* setup the initial stack */
+    mov $(stack_top - VIRT_OFFSET), %esp
+    # Copy the multiboot info (pointed to by ebx) into the init_heap so that
+    # it can still be read after paging is enabled
+    # Save MAGIC
+    push %eax
+    # Setup parameters
+    push $VIRT_OFFSET
+    mov $(init_heap - VIRT_OFFSET), %ecx
+    push %ecx
+    push %ebx
+    # This copies the multiboot structure into our init heap for easy access later
+    call copy_multiboot_info
+    # Set %eax and %ebx to the correct values for kernel main later
+    # magic
+    # Repop function arguments
+    pop %ebx
+    pop %ebx
+    pop %eax
+    mov $init_heap, %ebx
+
     /*
     Current state: 32-bit protected mode, disabled interrupts, disabled paging.
     Full control of the cpu. No libraries, all code must be provided by the kernel.
@@ -41,7 +68,7 @@ _start:
 	 *       conversions to and from physical. Maybe this should be done in this
 	 *       code as well?
      */
-	movl $(boot_page_table1 - 0xC0000000), %edi
+	movl $(boot_page_table1 - VIRT_OFFSET), %edi
 	/*
      * First address to map is address 0.
 	 * TODO: Start at the first kernel page instead. Alternatively map the first
@@ -54,9 +81,9 @@ _start:
 
 1:
 	# Only map the kernel.
-	cmpl $(_kernel_start - 0xC0000000), %esi
+	cmpl $(_kernel_start - VIRT_OFFSET), %esi
 	jl 2f
-	cmpl $(_kernel_end - 0xC0000000), %esi
+	cmpl $(_kernel_end - VIRT_OFFSET), %esi
 	jge 3f
 
 	# Map physical address as "present, writable". Note that this maps
@@ -75,7 +102,7 @@ _start:
 
 3:
 	# Map VGA video memory to 0xC03FF000 as "present, writable".
-	movl $(0x000B8000 | 0x003), boot_page_table1 - 0xC0000000 + 1023 * 4
+	movl $(0x000B8000 | 0x003), boot_page_table1 - VIRT_OFFSET + 1023 * 4
 
 	# The page table is used at both page directory entry 0 (virtually from 0x0
 	# to 0x3FFFFF) (thus identity mapping the kernel) and page directory entry
@@ -85,11 +112,11 @@ _start:
 	# would instead page fault if there was no identity mapping.
 
 	# Map the page table to both virtual addresses 0x00000000 and 0xC0000000.
-	movl $(boot_page_table1 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 0
-	movl $(boot_page_table1 - 0xC0000000 + 0x003), boot_page_directory - 0xC0000000 + 768 * 4
+	movl $(boot_page_table1 - VIRT_OFFSET + 0x003), boot_page_directory - VIRT_OFFSET + 0
+	movl $(boot_page_table1 - VIRT_OFFSET + 0x003), boot_page_directory - VIRT_OFFSET + 768 * 4
 
 	# Set cr3 to the address of the boot_page_directory.
-	movl $(boot_page_directory - 0xC0000000), %ecx
+	movl $(boot_page_directory - VIRT_OFFSET), %ecx
 	movl %ecx, %cr3
 
 	# Enable paging and the write-protect bit.
@@ -98,7 +125,7 @@ _start:
 	movl %ecx, %cr0
 
 	# Jump to higher half with an absolute jump. 
-	lea 4f, %ecx
+	lea JumpToHigherHalf, %ecx
 	jmp *%ecx
 
 /*
@@ -107,7 +134,9 @@ _start:
 .size _start, . - _start
 
 .section .text
-4:
+.global JumpToHigherHalf
+.type JumpToHigherHalf, @function
+JumpToHigherHalf:
     # Paging is fully set up and enabled
     # Unmap the identity mapping
     movl $0, boot_page_directory + 0
@@ -123,6 +152,8 @@ _start:
     Push multiboot address and magic onto stack
     */
     push %eax
+    # Add virtual offset to multiboot info
+    # add $VIRT_OFFSET, %ebx
     push %ebx
 
     /*
@@ -159,3 +190,8 @@ _start:
     cli
 1:  hlt
     jmp 1b
+
+/*
+ Set the size of the JumpToHigherHalf symbol
+*/
+.size JumpToHigherHalf, . - JumpToHigherHalf

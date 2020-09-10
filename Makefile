@@ -73,6 +73,7 @@ libc/string/memcpy.o \
 libc/string/memmove.o \
 libc/string/memset.o \
 libc/string/strlen.o \
+libc/string/strcpy.o \
 libc/ssp/ssp.o \
 
 LIBC_OBJS=$(FREEOBJS) $(HOSTEDOBJS)
