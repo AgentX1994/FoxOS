@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 #include <kernel/multiboot.h>
-#include <kernel/tty.h>
 #include <kernel/phys_mem.h>
+#include <kernel/tty.h>
 
 __attribute__((constructor)) void initialize(void)
 {

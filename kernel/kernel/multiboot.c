@@ -30,7 +30,7 @@ void copy_multiboot_info(multiboot_info_t* mbd, char* dest, uint32_t virtual_off
         // TODO how to handle the addresses of the modules??
         memcpy(dest + bytes_used, mbd->mods_addr, mbd->mods_count * sizeof(multiboot_module_t));
         // update address in new multiboot structure
-        ((multiboot_info_t*)dest)->mods_addr = dest+bytes_used + virtual_offset;
+        ((multiboot_info_t*)dest)->mods_addr = dest + bytes_used + virtual_offset;
         // Copy each modules' command line
         multiboot_module_t* modules = dest + bytes_used;
         bytes_used += mbd->mods_count * sizeof(multiboot_module_t);
@@ -53,9 +53,9 @@ void copy_multiboot_info(multiboot_info_t* mbd, char* dest, uint32_t virtual_off
     if (mbd->flags & MULTIBOOT_INFO_MEM_MAP) {
         // The length is the total length of the buffer,
         // so we don't need to worry about all the individual entries
-        memcpy(dest+bytes_used, mbd->mmap_addr, mbd->mmap_length);
+        memcpy(dest + bytes_used, mbd->mmap_addr, mbd->mmap_length);
         // update address in new multiboot structure
-        ((multiboot_info_t*)dest)->mmap_addr = dest+bytes_used + virtual_offset;
+        ((multiboot_info_t*)dest)->mmap_addr = dest + bytes_used + virtual_offset;
         bytes_used += mbd->mmap_length;
     }
 

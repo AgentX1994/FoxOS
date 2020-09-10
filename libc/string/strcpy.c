@@ -6,8 +6,7 @@ char* strcpy(char* dest, const char* src)
         return dest;
     }
     char* ret = dest;
-    while (*src != '\0')
-    {
+    while (*src != '\0') {
         *dest++ = *src++;
     }
     *dest = '\0';

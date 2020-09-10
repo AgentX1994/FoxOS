@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
 #include <kernel/multiboot.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define PAGE_SIZE 4096
 

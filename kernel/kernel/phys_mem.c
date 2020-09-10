@@ -38,7 +38,7 @@ void setup_memory_map(multiboot_info_t* mbd)
     mem_map_entry* mmap;
     for (mmap = (mem_map_entry*)mbd->mmap_addr;
          mmap < (mem_map_entry*)(mbd->mmap_addr + mbd->mmap_length);
-         mmap = (mem_map_entry *)((uint32_t)mmap + mmap->size + sizeof(mmap->size))) {
+         mmap = (mem_map_entry*)((uint32_t)mmap + mmap->size + sizeof(mmap->size))) {
         printf("base_addr = 0x%llx, length = 0x%llx, type=%u\n",
             mmap->addr,
             mmap->len,
@@ -50,17 +50,16 @@ void setup_memory_map(multiboot_info_t* mbd)
 
         system_bytes += mmap->len;
 
-        switch (mmap->type)
-        {
-            case MULTIBOOT_MEMORY_AVAILABLE:
-            case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE:
-                break;
-            case MULTIBOOT_MEMORY_BADRAM:
-            case MULTIBOOT_MEMORY_RESERVED:
-            case MULTIBOOT_MEMORY_NVS:
-            default:
-                unavailable_bytes += mmap->len;
-                continue;
+        switch (mmap->type) {
+        case MULTIBOOT_MEMORY_AVAILABLE:
+        case MULTIBOOT_MEMORY_ACPI_RECLAIMABLE:
+            break;
+        case MULTIBOOT_MEMORY_BADRAM:
+        case MULTIBOOT_MEMORY_RESERVED:
+        case MULTIBOOT_MEMORY_NVS:
+        default:
+            unavailable_bytes += mmap->len;
+            continue;
         }
 
         if (mmap->type != MULTIBOOT_MEMORY_AVAILABLE) {
@@ -89,8 +88,7 @@ void setup_memory_map(multiboot_info_t* mbd)
     printf("    Unavailable  : 0x%X (%d MB)\n", unavailable_bytes, unavailable_bytes >> 20);
 
     printf("Free Memory Entries:\n");
-    for (size_t i = 0; i < free_memory_entries; ++i)
-    {
+    for (size_t i = 0; i < free_memory_entries; ++i) {
         free_memory_t* entry = &free_memory[i];
         printf("    0x%llx - 0x%llx, %lld B\n", entry->start, entry->end, entry->end - entry->start);
     }
