@@ -2,5 +2,13 @@
     "files.associations": {
         "panic.h": "c",
         "multiboot.h": "c"
+    },
+    "files.exclude": {
+        "*.a": true,
+        "*.iso": true,
+        "*.kernel": true,
+        "**/*.d": true,
+        "**/*.o": true,
+        "sysroot": true
     }
 }
