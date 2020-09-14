@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "panic.h": "c",
-        "multiboot.h": "c"
+        "multiboot.h": "c",
+        "cstdio": "c"
     },
     "files.exclude": {
         "*.a": true,

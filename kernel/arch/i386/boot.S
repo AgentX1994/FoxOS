@@ -195,3 +195,17 @@ JumpToHigherHalf:
  Set the size of the JumpToHigherHalf symbol
 */
 .size JumpToHigherHalf, . - JumpToHigherHalf
+
+# Helper functions for the rest of the kernel
+.global set_cs
+.type set_cs, @function
+set_cs:
+    mov 4(%esp), %eax
+    pushl %eax
+    push $reload_CS
+    ljmp *(%esp)
+reload_CS:
+    add $8, %esp
+    ret
+
+.size set_cs, . - set_cs

@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <gdt.h>
+#include <kernel/interrupts.h>
 #include <kernel/multiboot.h>
 #include <kernel/phys_mem.h>
 #include <kernel/tty.h>
@@ -21,6 +23,7 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic)
         terminal_writestring("WARNING: Not loaded by multiboot compatible boot loader!\n");
     }
     printf("Kernel Loaded! mbd = 0x%x\n", mbd);
+    setup_gdt();
     if (mbd->flags & MULTIBOOT_INFO_MEMORY) {
         printf("mem_lower = %uB\n", mbd->mem_lower * 1024);
         printf("mem_upper = %uB\n", mbd->mem_upper * 1024);
@@ -30,10 +33,17 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic)
         setup_memory_map(mbd);
     }
 
+    setup_interrupts();
+
     int64_t page = allocate_pages(1);
     int64_t pages = allocate_pages(2);
     int64_t pages2 = allocate_pages(3);
     free_pages(pages2, 3);
     free_pages(pages, 2);
     free_pages(page, 1);
+
+    for (;;) {
+        terminal_writestring("Kernel done, going to sleep and waiting for interrupts\n");
+        asm volatile("hlt");
+    }
 }
