@@ -7,3 +7,6 @@ sysroot/
 
 # GCC automagically creates .s files from .S files for some reason?
 *.s
+
+# gdb history file
+.gdb_history
